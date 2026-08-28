@@ -49,8 +49,7 @@ services:
       - "443:443"
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - certbot_etc:/etc/letsencrypt:ro
-      - certbot_var:/var/lib/letsencrypt
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - api
     networks:
