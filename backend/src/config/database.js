@@ -5,15 +5,17 @@ dotenv.config();
 
 const dbUrl = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/cloudbox_db';
 
+const useSSL = process.env.DB_SSL === 'true' || (process.env.DB_SSL !== 'false' && !dbUrl.includes('localhost') && !dbUrl.includes('127.0.0.1'));
+
 export const sequelize = new Sequelize(dbUrl, {
   dialect: 'postgres',
   logging: process.env.NODE_ENV === 'development' ? console.log : false,
-  dialectOptions: {
+  dialectOptions: useSSL ? {
     ssl: {
       require: true,
       rejectUnauthorized: false
     }
-  },
+  } : {},
   pool: {
     max: 10,
     min: 0,

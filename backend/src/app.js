@@ -17,10 +17,20 @@ import { errorHandler } from './middleware/error.middleware.js';
 dotenv.config();
 
 const app = express();
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || process.env.CLIENT_URL || 'http://localhost:5173')
-  .split(',')
-  .map(url => url.trim())
-  .filter(Boolean);
+const rawOrigins = [
+  process.env.CLIENT_URL,
+  ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : []),
+  'http://localhost:5173',
+  'http://localhost:3000'
+];
+
+const allowedOrigins = Array.from(
+  new Set(
+    rawOrigins
+      .filter(Boolean)
+      .map(url => url.trim().replace(/\/$/, ''))
+  )
+);
 
 // Security Headers
 app.use(helmet());
@@ -31,10 +41,17 @@ app.set('trust proxy', 1);
 // CORS Configuration
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin) return callback(null, true);
+    
+    const cleanOrigin = origin.trim().replace(/\/$/, '');
+    const isAllowed = allowedOrigins.includes(cleanOrigin) ||
+      allowedOrigins.some(allowed => allowed !== '*' && cleanOrigin.endsWith('.vercel.app'));
+
+    if (isAllowed) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      console.warn(`[CORS] Blocked request from origin: ${origin}`);
+      callback(null, false);
     }
   },
   credentials: true,

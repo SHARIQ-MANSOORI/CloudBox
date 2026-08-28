@@ -14,8 +14,8 @@ async function startServer() {
   initCronJobs();
 
   try {
-    // Sync models in development mode (creates tables if missing)
-    if (process.env.NODE_ENV !== 'production') {
+    // Sync models in non-production mode or if DB_SYNC=true (creates missing tables)
+    if (process.env.NODE_ENV !== 'production' || process.env.DB_SYNC === 'true') {
       await sequelize.sync({ alter: false });
       console.log('[Sequelize] Database synchronized successfully.');
     }
