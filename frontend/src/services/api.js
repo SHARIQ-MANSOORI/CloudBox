@@ -12,7 +12,7 @@ export const getMemoryToken = () => {
 };
 
 export const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
   withCredentials: true, // Necessary for httpOnly refresh token cookie
   headers: {
     'Content-Type': 'application/json'

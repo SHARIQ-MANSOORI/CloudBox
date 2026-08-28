@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  # 1. Express Node.js Backend API
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cloudbox_api
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./backend/.env
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - cloudbox_net
+
+  # 2. Redis Cache & Session Store
+  redis:
+    image: redis:7-alpine
+    container_name: cloudbox_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - cloudbox_net
+
+  # 3. Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: cloudbox_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - certbot_etc:/etc/letsencrypt:ro
+      - certbot_var:/var/lib/letsencrypt
+    depends_on:
+      - api
+    networks:
+      - cloudbox_net
+
+volumes:
+  redis_data:
+    driver: local
+  certbot_etc:
+    driver: local
+  certbot_var:
+    driver: local
+
+networks:
+  cloudbox_net:
+    driver: bridge

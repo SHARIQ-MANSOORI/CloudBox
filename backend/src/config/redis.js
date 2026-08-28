@@ -48,10 +48,10 @@ try {
   redisClient = new Redis(redisUrl, {
     maxRetriesPerRequest: 1,
     retryStrategy(times) {
-      if (times > 3) {
-        return null; // Stop retrying and fallback to inMemoryStore
+      if (times > 20) {
+        return null; // Stop retrying and fallback to inMemoryStore after 20 attempts
       }
-      return Math.min(times * 200, 1000);
+      return Math.min(times * 200, 2000);
     }
   });
 

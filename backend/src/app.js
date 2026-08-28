@@ -17,14 +17,26 @@ import { errorHandler } from './middleware/error.middleware.js';
 dotenv.config();
 
 const app = express();
-const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
+  .split(',')
+  .map(url => url.trim())
+  .filter(Boolean);
 
 // Security Headers
 app.use(helmet());
 
+// Trust reverse proxy (Nginx) for client IP rate-limiting
+app.set('trust proxy', 1);
+
 // CORS Configuration
 app.use(cors({
-  origin: clientUrl,
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'ETag', 'eTag']
@@ -35,10 +47,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Health Check Route
-app.get('/health', (req, res) => {
+// Health Check Routes (unauthenticated)
+const healthCheckHandler = (req, res) => {
   res.status(200).json({ status: 'ok', service: 'CloudBox API', timestamp: new Date().toISOString() });
-});
+};
+app.get('/health', healthCheckHandler);
+app.get('/api/health', healthCheckHandler);
 
 // API Routes
 app.use('/api/auth', authRoutes);
