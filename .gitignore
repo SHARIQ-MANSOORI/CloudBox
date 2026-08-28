@@ -1,0 +1,39 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Node modules & dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs & dist
+dist/
+build/
+*.tsbuildinfo
+
+# OS & IDE metadata
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Credentials & Key files
+*.pem
+*.pub
+*.key
+*.cert
+*.p12
+
+# Database / Redis data exports
+*.sqlite
+*.db
+dump.rdb
