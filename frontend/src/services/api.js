@@ -11,13 +11,12 @@ export const getMemoryToken = () => {
   return inMemoryAccessToken;
 };
 
-const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
-const normalizedBaseUrl = (rawBaseUrl.endsWith('/api') || rawBaseUrl.endsWith('/api/'))
-  ? rawBaseUrl.replace(/\/$/, '')
-  : (rawBaseUrl === '/' ? '/api' : `${rawBaseUrl.replace(/\/$/, '')}/api`);
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+  ? `${import.meta.env.VITE_API_BASE_URL}/api`
+  : '/api';
 
 export const api = axios.create({
-  baseURL: normalizedBaseUrl,
+  baseURL: API_BASE_URL,
   withCredentials: true, // Necessary for httpOnly refresh token cookie
   headers: {
     'Content-Type': 'application/json'
