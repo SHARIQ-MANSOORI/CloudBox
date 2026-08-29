@@ -8,7 +8,9 @@ export const initUploadSchema = z.object({
   mimeType: z.string().trim().default('application/octet-stream'),
   totalSize: z.number({ required_error: 'Total file size is required' })
     .nonnegative('Total size cannot be negative'),
-  folderId: z.string().uuid('Invalid folder ID').nullable().optional()
+  folderId: z.string().uuid('Invalid folder ID').nullable().optional(),
+  wrappedKey: z.string().nullable().optional(),
+  iv: z.string().nullable().optional()
 });
 
 export const getPartUrlSchema = z.object({

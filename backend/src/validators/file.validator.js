@@ -11,7 +11,9 @@ export const requestUploadUrlSchema = z.object({
 });
 
 export const confirmUploadSchema = z.object({
-  sizeInBytes: z.number().nonnegative('Size cannot be negative').optional()
+  sizeInBytes: z.number().nonnegative('Size cannot be negative').optional(),
+  wrappedKey: z.string().nullable().optional(),
+  iv: z.string().nullable().optional()
 });
 
 export const renameFileSchema = z.object({
