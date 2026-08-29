@@ -28,9 +28,15 @@ export const AccountSettingsModal = ({ isOpen, onClose, user, hasPrivateKey }) =
           </div>
           <div className="flex justify-between items-center py-1 border-b border-slate-200/60">
             <span className="text-slate-500 font-medium">Session Key Status</span>
-            <span className="inline-flex items-center font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
-              <Lock className="w-3 h-3 mr-1" /> Unlocked in Memory
-            </span>
+            {hasPrivateKey ? (
+              <span className="inline-flex items-center font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
+                <Lock className="w-3 h-3 mr-1" /> Unlocked in Memory
+              </span>
+            ) : (
+              <span className="inline-flex items-center font-semibold text-rose-700 bg-rose-100 px-2 py-0.5 rounded-full">
+                <AlertCircle className="w-3.5 h-3.5 mr-1" /> Locked (Refreshed)
+              </span>
+            )}
           </div>
           <div className="flex justify-between items-center py-1">
             <span className="text-slate-500 font-medium">Key Encryption Scheme</span>
