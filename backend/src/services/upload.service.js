@@ -7,6 +7,7 @@ import {
   abortMultipartUpload
 } from './s3.service.js';
 import { createFileVersion, buildVersionS3Key } from './version.service.js';
+import { getEffectiveFolderRole, getEffectiveFileRole } from './permission.service.js';
 
 export const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB minimum part size for AWS S3
 

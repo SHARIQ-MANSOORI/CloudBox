@@ -23,6 +23,49 @@ export const AuthProvider = ({ children }) => {
   const [userPublicKey, setUserPublicKey] = useState(null);
   const [pendingRecoveryKey, setPendingRecoveryKey] = useState(null);
 
+  const saveKeysToSessionStorage = async (privateKeyObj, publicKeyObj) => {
+    try {
+      const privateKeyJwk = await window.crypto.subtle.exportKey('jwk', privateKeyObj);
+      const publicKeyJwk = await window.crypto.subtle.exportKey('jwk', publicKeyObj);
+      sessionStorage.setItem('cb_private_key', JSON.stringify(privateKeyJwk));
+      sessionStorage.setItem('cb_public_key', JSON.stringify(publicKeyJwk));
+    } catch (e) {
+      console.warn('[Crypto] Failed to save keys to sessionStorage:', e);
+    }
+  };
+
+  const loadKeysFromSessionStorage = async () => {
+    try {
+      const privateKeyJwkStr = sessionStorage.getItem('cb_private_key');
+      const publicKeyJwkStr = sessionStorage.getItem('cb_public_key');
+      if (privateKeyJwkStr && publicKeyJwkStr) {
+        const privateKeyJwk = JSON.parse(privateKeyJwkStr);
+        const publicKeyJwk = JSON.parse(publicKeyJwkStr);
+
+        const privateKeyObj = await window.crypto.subtle.importKey(
+          'jwk',
+          privateKeyJwk,
+          { name: 'RSA-OAEP', hash: 'SHA-256' },
+          true,
+          ['decrypt', 'unwrapKey']
+        );
+        const publicKeyObj = await window.crypto.subtle.importKey(
+          'jwk',
+          publicKeyJwk,
+          { name: 'RSA-OAEP', hash: 'SHA-256' },
+          true,
+          ['encrypt', 'wrapKey']
+        );
+
+        setUserPrivateKey(privateKeyObj);
+        setUserPublicKey(publicKeyObj);
+        console.log('[Crypto] Keys restored from sessionStorage.');
+      }
+    } catch (e) {
+      console.warn('[Crypto] Failed to load keys from sessionStorage:', e);
+    }
+  };
+
   const updateSession = useCallback((token, userData) => {
     setMemoryToken(token);
     setAccessToken(token);
@@ -36,6 +79,8 @@ export const AuthProvider = ({ children }) => {
     setUserPrivateKey(null);
     setUserPublicKey(null);
     setPendingRecoveryKey(null);
+    sessionStorage.removeItem('cb_private_key');
+    sessionStorage.removeItem('cb_public_key');
   }, []);
 
   // Setup interceptor callbacks
@@ -55,6 +100,7 @@ export const AuthProvider = ({ children }) => {
         const response = await api.post('/auth/refresh');
         if (isMounted && response.data.success) {
           updateSession(response.data.accessToken, response.data.user);
+          await loadKeysFromSessionStorage();
         }
       } catch (err) {
         // No active session or refresh token expired
@@ -98,6 +144,7 @@ export const AuthProvider = ({ children }) => {
     // 4. Hold unlocked key objects in memory session
     setUserPrivateKey(privateKeyObj);
     setUserPublicKey(publicKeyObj);
+    await saveKeysToSessionStorage(privateKeyObj, publicKeyObj);
     setPendingRecoveryKey(recoveryKey);
 
     return recoveryKey;
@@ -120,6 +167,7 @@ export const AuthProvider = ({ children }) => {
 
     setUserPrivateKey(privateKeyObj);
     setUserPublicKey(publicKeyObj);
+    await saveKeysToSessionStorage(privateKeyObj, publicKeyObj);
     return null;
   };
 

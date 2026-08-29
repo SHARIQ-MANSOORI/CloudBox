@@ -621,7 +621,7 @@ export const DashboardPage = () => {
                                     )}
                                   </div>
 
-                                  <div className="relative">
+                                  <div className="relative" onClick={(e) => e.stopPropagation()}>
                                     <button
                                       onClick={() => setActiveMenuId(activeMenuId === file.id ? null : file.id)}
                                       className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100"
@@ -748,7 +748,7 @@ export const DashboardPage = () => {
                                       <Download className="w-4 h-4" />
                                     </button>
 
-                                    <div className="relative">
+                                    <div className="relative" onClick={(e) => e.stopPropagation()}>
                                       <button
                                         onClick={() => setActiveMenuId(activeMenuId === file.id ? null : file.id)}
                                         className="p-1 rounded-lg hover:bg-slate-200 text-slate-400 hover:text-slate-600"
