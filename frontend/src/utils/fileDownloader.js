@@ -16,13 +16,16 @@ export const downloadAndDecryptFile = async ({ fileId, fileName, mimeType, userP
   const ciphertextBuffer = await response.arrayBuffer();
 
   let blob;
-  if (wrappedKey && iv && userPrivateKey) {
+  if (wrappedKey) {
+    if (!userPrivateKey) {
+      throw new Error('Your encryption keys are locked. Please click the Security badge to unlock them before downloading.');
+    }
     // Zero-Knowledge Client-Side Decryption
     const dekObj = await unwrapDEK(wrappedKey, userPrivateKey);
     const decryptedBuffer = await decryptFileContent(ciphertextBuffer, dekObj, iv);
     blob = new Blob([decryptedBuffer], { type: mimeType || 'application/octet-stream' });
   } else {
-    // Unencrypted or fallback
+    // Unencrypted file
     blob = new Blob([ciphertextBuffer], { type: mimeType || 'application/octet-stream' });
   }
 
