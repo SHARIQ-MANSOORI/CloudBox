@@ -116,8 +116,8 @@ export const ShareModal = ({ isOpen, onClose, item }) => {
           <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
             Invite People via Email
           </label>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-            <div className="relative flex-1">
+          <div className="space-y-2.5">
+            <div className="relative">
               <input
                 type="email"
                 value={email}
@@ -128,24 +128,26 @@ export const ShareModal = ({ isOpen, onClose, item }) => {
               />
             </div>
 
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 shrink-0"
-            >
-              <option value="viewer">Viewer (Can view & download)</option>
-              <option value="editor">Editor (Can also upload & rename)</option>
-            </select>
+            <div className="flex items-center gap-2">
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="flex-1 px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-0"
+              >
+                <option value="viewer">Viewer (Can view & download)</option>
+                <option value="editor">Editor (Can also upload & rename)</option>
+              </select>
 
-            <Button
-              type="submit"
-              isLoading={isSubmitting}
-              disabled={!email.trim() || isSubmitting}
-              className="w-auto px-4 py-2.5 text-xs shrink-0"
-            >
-              <UserPlus className="w-4 h-4 mr-1.5" />
-              <span>Share</span>
-            </Button>
+              <Button
+                type="submit"
+                isLoading={isSubmitting}
+                disabled={!email.trim() || isSubmitting}
+                className="!w-auto px-5 py-2.5 text-xs shrink-0"
+              >
+                <UserPlus className="w-4 h-4 mr-1.5" />
+                <span>Share</span>
+              </Button>
+            </div>
           </div>
         </form>
 
